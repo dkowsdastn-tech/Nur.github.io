@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Noor - Islamic PWA</title>
+    <meta name="theme-color" content="#10B981">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Манифест для установки PWA (в реальном проекте создай manifest.json) -->
+    <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiTm9vciIsImRpc3BsYXkiOiJzdGFuZGFsb25lIn0=">
+</head>
+<body class="theme-dark">
+
+    <!-- Контейнер приложения -->
+    <div id="app">
+
+        <!-- ВКЛАДКА 1: Умный Тасбих -->
+        <section id="tab-tasbih" class="tab-content active">
+            <div class="header" id="tasbih-header">
+                <select id="dikhr-category" onchange="changeDikhrCategory()">
+                    <option value="basic" data-i18n="dikhr_basic">Базовые зикры</option>
+                    <option value="morning" data-i18n="dikhr_morning">Утренние азкары</option>
+                    <option value="fatima" data-i18n="dikhr_fatima">Тасбих Фатимы</option>
+                    <option value="salawat" data-i18n="dikhr_salawat">Салаваты</option>
+                </select>
+                <div class="dikhr-display">
+                    <h2 id="dikhr-arabic">سُبْحَانَ ٱللَّٰهِ</h2>
+                    <p id="dikhr-translit">Субханаллах</p>
+                </div>
+            </div>
+            
+            <div class="tasbih-container">
+                <button id="main-counter" onclick="incrementTasbih()">0</button>
+            </div>
+
+            <div class="tasbih-controls" id="tasbih-controls">
+                <button onclick="resetTasbih()" class="btn-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.99 6.57 2.63L21 8M21 3v5h-5"/></svg>
+                </button>
+                <button onclick="toggleCleanMode()" class="btn-icon" id="clean-btn">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- ВКЛАДКА 2: Сотри и узнай (Сунна) -->
+        <section id="tab-scratch" class="tab-content">
+            <div class="header">
+                <h2 data-i18n="scratch_title">Сотри и узнай</h2>
+                <p data-i18n="scratch_subtitle">Ежедневная Сунна</p>
+            </div>
+            <div class="scratch-container">
+                <div class="scratch-content" id="scratch-content">
+                    <h3 id="sunnah-title">Улыбка — это Садака</h3>
+                    <p id="sunnah-text">«Ваша улыбка брату своему является для вас милостыней» (Ат-Тирмизи)</p>
+                </div>
+                <canvas id="scratch-pad"></canvas>
+            </div>
+            <button class="btn-primary reset-scratch" onclick="initScratchCard()" data-i18n="scratch_next">Следующая карточка</button>
+        </section>
+
+        <!-- ВКЛАДКА 3: Знания (Stories) -->
+        <section id="tab-knowledge" class="tab-content">
+            <div class="stories-container" id="stories-container" onclick="nextStory(event)">
+                <div class="story-progress">
+                    <div class="progress-bar"><div class="progress-fill" id="story-fill-0"></div></div>
+                    <div class="progress-bar"><div class="progress-fill" id="story-fill-1"></div></div>
+                    <div class="progress-bar"><div class="progress-fill" id="story-fill-2"></div></div>
+                </div>
+                <div class="story-content">
+                    <h2 id="story-title">Польза Садака</h2>
+                    <p id="story-text">Милостыня гасит гнев Господа и защищает от плохой смерти.</p>
+                </div>
+                <div class="story-hint" data-i18n="tap_to_next">Коснитесь, чтобы продолжить</div>
+            </div>
+        </section>
+
+        <!-- ВКЛАДКА 4: ИИ-Богослов -->
+        <section id="tab-ai" class="tab-content">
+            <div class="header">
+                <h2 data-i18n="ai_title">ИИ-Помощник</h2>
+            </div>
+            <div class="chat-chips">
+                <button onclick="sendAI('Как правильно брать омовение?')" data-i18n="chip_wudu">Омовение</button>
+                <button onclick="sendAI('Что нарушает пост?')" data-i18n="chip_fasting">Пост</button>
+                <button onclick="sendAI('Условия дуа')" data-i18n="chip_dua">Дуа</button>
+            </div>
+            <div class="chat-window" id="chat-window">
+                <div class="message ai">Ассаляму алейкум! Я отвечу на ваши вопросы опираясь на Коран и Сунну.</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="ai-input" placeholder="Напишите ваш вопрос..." data-i18n-placeholder="ai_placeholder">
+                <button onclick="handleAIRequest()">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- ВКЛАДКА 5: Коран -->
+        <section id="tab-quran" class="tab-content">
+            <div class="header">
+                <h2 data-i18n="quran_title">Священный Коран</h2>
+                <select id="quran-reciter">
+                    <option value="mishary">Мишари Рашид</option>
+                    <option value="abdulbosit">Абдуль-Басит</option>
+                    <option value="sobhi">Ислам Собхи</option>
+                </select>
+            </div>
+            <div class="surah-list" id="surah-list">
+                <!-- Генерируется через JS -->
+            </div>
+            <!-- Плеер -->
+            <div class="audio-player">
+                <div class="player-info">
+                    <span id="playing-surah">Выберите суру</span>
+                </div>
+                <div class="player-controls">
+                    <button onclick="togglePlay()"><svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ВКЛАДКА 6: Истории -->
+        <section id="tab-stories" class="tab-content">
+            <div class="header">
+                <h2 data-i18n="community_stories">Ваши Истории</h2>
+                <button class="btn-small" onclick="openStoryModal()" data-i18n="submit_story">Написать</button>
+            </div>
+            <div class="feed-container" id="feed-container">
+                <!-- Истории пользователей -->
+            </div>
+        </section>
+
+        <!-- ВКЛАДКА 7: Настройки -->
+        <section id="tab-settings" class="tab-content">
+            <div class="header">
+                <h2 data-i18n="settings">Настройки</h2>
+            </div>
+            <div class="settings-list">
+                <div class="setting-item">
+                    <span data-i18n="language">Язык</span>
+                    <select id="lang-select" onchange="changeLanguage(this.value)">
+                        <option value="ru">Русский</option>
+                        <option value="kk">Қазақша</option>
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                        <option value="tr">Türkçe</option>
+                        <option value="id">Bahasa Indonesia</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <span data-i18n="theme">Тема</span>
+                    <button class="btn-small" onclick="toggleTheme()" data-i18n="toggle_theme">Сменить</button>
+                </div>
+                <div class="setting-item">
+                    <span data-i18n="install_app">Установить приложение</span>
+                    <button class="btn-small" id="install-btn" style="display:none;" data-i18n="install">Скачать</button>
+                </div>
+                <div class="setting-item info-text" data-i18n="faq_text">
+                    Здесь находятся ответы на частые вопросы и помощь по приложению.
+                </div>
+            </div>
+        </section>
+
+        <!-- Модальное окно добавления истории -->
+        <div id="story-modal" class="modal">
+            <div class="modal-content">
+                <h3 data-i18n="submit_story_title">Поделитесь своим путем</h3>
+                <input type="text" id="user-name" placeholder="Ваше имя">
+                <textarea id="user-story-text" rows="5" placeholder="Ваша история..."></textarea>
+                <button class="btn-primary" onclick="submitUserStory()" data-i18n="send">Отправить</button>
+                <button class="btn-text" onclick="closeStoryModal()" data-i18n="cancel">Отмена</button>
+            </div>
+        </div>
+
+        <!-- Нижняя навигация -->
+        <nav id="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('tasbih', this)">📿</button>
+            <button class="nav-item" onclick="switchTab('scratch', this)">✨</button>
+            <button class="nav-item" onclick="switchTab('knowledge', this)">📚</button>
+            <button class="nav-item" onclick="switchTab('ai', this)">🤖</button>
+            <button class="nav-item" onclick="switchTab('quran', this)">📖</button>
+            <button class="nav-item" onclick="switchTab('stories', this)">💬</button>
+            <button class="nav-item" onclick="switchTab('settings', this)">⚙️</button>
+        </nav>
+
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
